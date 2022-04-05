@@ -24,6 +24,9 @@
     "@ionic/vue": "^6.0.0",
     "@ionic/vue-router": "^6.0.0",
     "core-js": "^3.6.5",
+    "node-sass": "^7.0.1",
+    "sass": "^1.49.11",
+    "sass-loader": "^12.6.0",
     "vue": "^3.2.21",
     "vue-router": "^4.0.12"
   },

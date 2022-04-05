@@ -1,68 +1,36 @@
-<template>
-  <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-title>Blank</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    
-    <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
-        </ion-toolbar>
-      </ion-header>
-    
-      <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-      </div>
-    </ion-content>
-  </ion-page>
-</template>
+<script lang="ts" setup>
+import {IonContent, IonPage} from '@ionic/vue';
 
-<script lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
-import { defineComponent } from 'vue';
+import {pageTitle} from '../state/pageState.ts'
 
-export default defineComponent({
-  name: 'HomePage',
-  components: {
-    IonContent,
-    IonHeader,
-    IonPage,
-    IonTitle,
-    IonToolbar
-  }
-});
+pageTitle.value = "Home";
+
 </script>
 
-<style scoped>
+<template>
+  <ion-content :fullscreen="true">
+    <div id="container" class="app-content">
+      <ion-grid>
+        <ion-row class="ion-align-items-center ">
+          <ion-col size="12" class="--ion-grid-column-padding">
+            <ion-card>
+              <ion-card-content>
+                <ion-searchbar type="text" inputmode="text"  enterkeyhint="enter" placeholder="Introduz o NIF"></ion-searchbar>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </ion-content>
+
+</template>
+
+<style scoped lang="scss">
+
 #container {
+  width: 100%;
   text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  
-  color: #8c8c8c;
-  
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
 </style>
