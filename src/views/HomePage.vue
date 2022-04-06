@@ -36,7 +36,8 @@ const searchPerson = {
     searchPersonByNIF({nif: onInputKeyUp.value as unknown as number}).then((data) => {
       router.push({path: `/signature/${JSON.stringify(data)}`})
     }).catch((error) => {
-      console.log(error)
+      console.log(error);
+
     }).finally(() => {
       searchLoading.dismiss()
     })

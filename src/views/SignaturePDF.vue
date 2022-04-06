@@ -2,15 +2,16 @@
 import {PropType, defineProps, computed, watch, ref} from "vue";
 import {PersonResponse} from "@/model/person";
 import {isGeneratingPDF, pageTitle} from "@/state/pageState";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import _ from 'underscore';
 import html2canvas from 'html2canvas';
-import {loadingController} from "@ionic/vue";
+import {loadingController, alertController, toastController} from "@ionic/vue";
 import {jsPDF} from "jspdf";
 import {blobToBase64} from "@/utils/apex-formatter";
 
 import signature from '@/composable/Signature';
 
+const router = useRouter();
 const route = useRoute();
 let generatePDFLoading: any;
 
@@ -38,14 +39,16 @@ const startSignatureProcess = async (contentId: string) => {
 
 
   setTimeout(() => {
-    html2canvas(document.getElementsByTagName("body")[0]).then(async (canvas) => {
+    html2canvas(document.getElementsByTagName('body')[0]).then(async (canvas) => {
       await generatePDFLoading.present();
       await generatePDF(canvas);
 
     }).catch((err) => {
-      console.log(err);
+      console.log('html2canvas: ', err);
       isGeneratingPDF.value = false;
       generatePDFLoading.dismiss();
+
+      presentErrorAlert(undefined, "Ocorreu um erro ao preparar a assinatura. Tente novamente mais tarde e se o problema persistir reinicie o aplicativo");
     })
   })
 
@@ -53,39 +56,70 @@ const startSignatureProcess = async (contentId: string) => {
 
 
 const generatePDF = async (canvas) => {
-  const imgData = canvas.toDataURL('image/png');
+  try {
+    const imgData = canvas.toDataURL('image/png');
 
-  const pdf = new jsPDF();
-  let imgWidth = 210;
-  let imgHeight = canvas.height * imgWidth / canvas.width;
+    const pdf = new jsPDF('p', 'mm',undefined, true);
+    let imgWidth = 210;
+    let imgHeight = canvas.height * imgWidth / canvas.width;
 
 
-  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
-  await sign(await blobToBase64(pdf.output('blob')))
-  pdf.save(`${(new Date()).toDateString()}.pdf`);
+    toSign(await blobToBase64(pdf.output('blob')))
+    pdf.save(`${(new Date()).toDateString()}.pdf`);
+  } catch (e) {
+    console.log("generatePDF: ", e);
+    await presentErrorAlert(undefined, "Ocorreu um erro ao preparar a assinatura. Tente novamente mais tarde e se o problema persistir reinicie o aplicativo");
+  }
+
 }
 
-const sign = async (base64PDF: ArrayBuffer) => {
-  const {getSignedPDF} = signature(base64PDF, 'http://localhost:20340/');
+const toSign = (base64PDF: ArrayBuffer) => {
+
+  const {getSignedPDF} = signature(base64PDF);
 
   getSignedPDF().then((signedPDF) => {
     console.log('signedPDF: ', signedPDF);
+    openToast("Documento assinado com sucesso");
+
+    setTimeout(() => {
+      router.push({path: `/signed/${JSON.stringify(signedPDF)}`});
+    }, 1000);
+
   }).catch((err) => {
-    console.log(err);
-    alert('error sign pdf');
-  }).finally(_=>{
+    console.log("getSignedPDF: ", err);
+    presentErrorAlert(undefined, "Ocorreu um erro ao preparar ao assinar. Tente novamente mais tarde e se o problema persistir reinicie o aplicativo");
+  }).finally(() => {
     isGeneratingPDF.value = false;
     generatePDFLoading.dismiss();
   })
 
 }
+
+const presentErrorAlert = async (header = "Algo deu errado!", message = "Tente novamente mais tarde e se o problema persistir reinicie o aplicativo") => {
+  const alert = await alertController
+      .create({
+        header,
+        message,
+        buttons: ['OK'],
+      });
+  await alert.present();
+}
+const openToast = async (message = "Atualizado com sucesso.", duration = 2000) => {
+  const toast = await toastController.create({
+    message,
+    duration,
+  });
+  return toast.present();
+}
+
 </script>
 
 <template>
   <ion-content :fullscreen="true" :key="'ionContent-'+_personData.id">
 
-    <div :id="'container'+_personData.id" ref="printMeToPDF" class="app-content">
+    <div :id="'container'+_personData.id" class="app-content">
 
       <!--      START: INFORMACAO PESSOAL-->
       <ion-card>
@@ -184,7 +218,7 @@ const sign = async (base64PDF: ArrayBuffer) => {
             </ion-row>
           </ion-grid>
           <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-            <ion-button v-show="!isGeneratingPDF" @click="startSignatureProcess()">Assinar</ion-button>
+            <ion-button v-show="!isGeneratingPDF" @click="startSignatureProcess('container'+_personData.id)">Assinar</ion-button>
           </ion-fab>
         </ion-card-content>
       </ion-card>

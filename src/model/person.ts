@@ -1,13 +1,13 @@
 export interface PersonRequest {
-    nif: number;
-    nome?: string;
-    dataNascimento?: string;
-    idTipoDocumento?: number;
-    numeroDocumento?: string;
-    arruamento?: string;
-    moradaZonaBairro?: string;
-    loteNPolicia?: string;
-    fraccao?: string;
+    nif: number
+    nome?: string
+    dataNascimento?: string
+    idTipoDocumento?: number
+    numeroDocumento?: string
+    arruamento?: string
+    moradaZonaBairro?: string
+    loteNPolicia?: string
+    fraccao?: string
 }
 
 export interface PersonResponseError {
