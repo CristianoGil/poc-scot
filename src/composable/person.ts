@@ -1,4 +1,4 @@
-import {Person} from "@/api/person";
+import {Person} from "@/api/Person";
 import {PersonRequest, PersonResponse, PersonResponseError} from "@/model/person";
 
 export default function person() {
@@ -9,7 +9,7 @@ export default function person() {
 
             personInstance.getByNIF(data).then((data) => {
                 resolve(data)
-            }).catch((error) => {
+            }).catch((error: any) => {
                 reject(error)
             })
 

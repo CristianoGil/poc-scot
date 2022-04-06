@@ -1,10 +1,19 @@
 <script lang="ts" setup>
-import {PropType, defineProps, computed, watch} from "vue";
+import {PropType, defineProps, computed, watch, ref} from "vue";
 import {PersonResponse} from "@/model/person";
-import {pageTitle} from "@/state/pageState";
+import {isGeneratingPDF, pageTitle} from "@/state/pageState";
 import {useRoute} from "vue-router";
+import _ from 'underscore';
+import html2canvas from 'html2canvas';
+import {loadingController} from "@ionic/vue";
+import {jsPDF} from "jspdf";
+import {blobToBase64} from "@/utils/apex-formatter";
+
+import signature from '@/composable/Signature';
 
 const route = useRoute();
+let generatePDFLoading: any;
+
 pageTitle.value = "Signature PDF";
 
 const props = defineProps({
@@ -13,32 +22,183 @@ const props = defineProps({
     required: true,
   }
 })
-const _personData = computed( () =>  JSON.parse(props.personData) as PersonResponse)
-console.log(_personData.value)
+const _personData = computed(() => {
+  const __data = JSON.parse(props.personData)
+  return (_.has(__data, 'pessoa') ? __data.pessoa : __data) as PersonResponse;
+});
 
+const startSignatureProcess = async (contentId: string) => {
+  isGeneratingPDF.value = true;
+  generatePDFLoading = await loadingController
+      .create({
+        message: 'A assinar...',
+        translucent: true,
+        backdropDismiss: false
+      });
+
+
+  setTimeout(() => {
+    html2canvas(document.getElementsByTagName("body")[0]).then(async (canvas) => {
+      await generatePDFLoading.present();
+      await generatePDF(canvas);
+
+    }).catch((err) => {
+      console.log(err);
+      isGeneratingPDF.value = false;
+      generatePDFLoading.dismiss();
+    })
+  })
+
+}
+
+
+const generatePDF = async (canvas) => {
+  const imgData = canvas.toDataURL('image/png');
+
+  const pdf = new jsPDF();
+  let imgWidth = 210;
+  let imgHeight = canvas.height * imgWidth / canvas.width;
+
+
+  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+  await sign(await blobToBase64(pdf.output('blob')))
+  pdf.save(`${(new Date()).toDateString()}.pdf`);
+}
+
+const sign = async (base64PDF: ArrayBuffer) => {
+  const {getSignedPDF} = signature(base64PDF, 'http://localhost:20340/');
+
+  getSignedPDF().then((signedPDF) => {
+    console.log('signedPDF: ', signedPDF);
+  }).catch((err) => {
+    console.log(err);
+    alert('error sign pdf');
+  }).finally(_=>{
+    isGeneratingPDF.value = false;
+    generatePDFLoading.dismiss();
+  })
+
+}
 </script>
 
 <template>
-  <ion-content :fullscreen="true">
-    <div id="container" class="app-content">
+  <ion-content :fullscreen="true" :key="'ionContent-'+_personData.id">
+
+    <div :id="'container'+_personData.id" ref="printMeToPDF" class="app-content">
+
+      <!--      START: INFORMACAO PESSOAL-->
       <ion-card>
         <ion-item>
-          <ion-label>ion-item in a card, icon left, button right</ion-label>
+          <ion-label>Informação pessoal</ion-label>
         </ion-item>
 
         <ion-card-content>
-          This is content, without any paragraph or header tags,
-          within an ion-card-content element.
+          <ion-grid>
+            <ion-row>
+              <ion-col size="4">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <small>NIF</small><br>
+                  <strong>{{ _personData.nif }}</strong>
+                </div>
+              </ion-col>
+
+              <ion-col size="6">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <small>Nome</small><br>
+                  <strong>{{ _personData.nome }}</strong>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
         </ion-card-content>
       </ion-card>
+      <!--      END: INFORMACAO PESSOAL-->
+
+      <!--      START: MORADA-->
+      <ion-card v-for="(morada ) in _personData.moradas" :key="morada.id">
+        <ion-item>
+          <ion-label>Morada - {{ morada.id }}</ion-label>
+        </ion-item>
+
+        <ion-card-content v-show="morada">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="4">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <small>Morada</small><br>
+
+                  <strong v-if="morada.morada">{{ morada.morada }}</strong>
+                  <strong v-else>N/A</strong>
+                </div>
+              </ion-col>
+
+              <ion-col size="4">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <small>Local</small><br>
+
+                  <strong v-if="morada.local?.descricao">{{ morada.local?.descricao }}</strong>
+                  <strong v-else>N/A</strong>
+                </div>
+              </ion-col>
+
+              <ion-col size="4">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <small>Localidade</small><br>
+                  <strong v-if="morada.localidade">{{ morada.localidade }}</strong>
+                  <strong v-else>N/A</strong>
+                </div>
+              </ion-col>
+
+              <ion-col size="4">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <small>Domicilio Sede</small><br>
+                  <strong v-if="morada.domicilioSede">{{ morada.domicilioSede }}</strong>
+                  <strong v-else>N/A</strong>
+                </div>
+              </ion-col>
+
+              <ion-col size="4">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <small>Fração</small><br>
+                  <strong v-if="morada.fracao">{{ morada.fracao }}</strong>
+                  <strong v-else>N/A</strong>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+      <!--      END: MORADA-->
+
+      <ion-card>
+        <ion-item>
+          <ion-label class="ion-align-items-center ion-text-center">Assinatura</ion-label>
+        </ion-item>
+
+        <ion-card-content class="altura">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12">
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+          <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+            <ion-button v-show="!isGeneratingPDF" @click="startSignatureProcess()">Assinar</ion-button>
+          </ion-fab>
+        </ion-card-content>
+      </ion-card>
+
     </div>
+
+
   </ion-content>
 </template>
 
 
 <style scoped lang="scss">
-#container {
-  width: 100%;
-  text-align: center;
+.altura {
+  height: 260px !important;
 }
+
 </style>

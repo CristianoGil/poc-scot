@@ -22,7 +22,6 @@ export interface PersonResponse {
     nif: number;
     nome?: string;
     moradas?: Morada[];
-    historicoMoradas?: Morada[];
 }
 
 interface Morada {
