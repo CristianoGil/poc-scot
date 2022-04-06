@@ -1,15 +1,14 @@
 import {Person} from "@/api/person";
-import {PersonRequest, PersonResponse} from "@/model/person";
+import {PersonRequest, PersonResponse, PersonResponseError} from "@/model/person";
 
 export default function person() {
     const personInstance: Person = new Person();
 
-    const getByNIF = (data: PersonRequest): Promise<void> => {
+    const getByNIF = (data: PersonRequest): Promise<PersonResponse | PersonResponseError> => {
         return new Promise((resolve, reject) => {
 
             personInstance.getByNIF(data).then((data) => {
-                console.log(data)
-                resolve()
+                resolve(data)
             }).catch((error) => {
                 reject(error)
             })

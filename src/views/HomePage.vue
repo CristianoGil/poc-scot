@@ -1,20 +1,27 @@
 <script lang="ts" setup>
-import {ref} from "vue";
-import {IonContent, IonPage, loadingController} from '@ionic/vue';
+import {defineComponent, ref} from "vue";
+import {IonContent, IonPage, loadingController, useIonRouter, onIonViewDidLeave} from '@ionic/vue';
+
 import _ from 'underscore'
 
-import {pageTitle} from '../state/pageState.ts'
+import {pageTitle} from '../state/pageState'
+import person from "@/composable/person";
+import {useRouter} from "vue-router";
+
+const router = useRouter();
 
 pageTitle.value = "Home";
 
-let searchLoading;
+let searchLoading: any;
 
 const isTyping = ref(false);
-const onInputKeyUp = ref('');
+const onInputKeyUp = ref<string>('');
 const searchInputId = 'input_search-getPersonInfoByNIF';
 
+
+const {searchPersonByNIF} = person();
 const searchPerson = {
-  getInfoByNIF: async (): void => {
+  getInfoByNIF: async (): Promise<void> => {
     if (_.isEmpty(onInputKeyUp.value)) return;
 
     searchLoading = await loadingController
@@ -26,18 +33,26 @@ const searchPerson = {
 
     await searchLoading.present();
 
-    setTimeout(function () {
+    searchPersonByNIF({nif: onInputKeyUp.value as unknown as number}).then((data) => {
+      router.push({path: `/signature/${JSON.stringify(data)}`})
+    }).catch((error) => {
+      console.log(error)
+    }).finally(() => {
       searchLoading.dismiss()
-    }, 5000);
+    })
 
   },
   onInput: {
     keyup: (): void => {
-      const el: HTMLInputElement = document.querySelector(`#${searchInputId} input`);
-      const {value} = el;
+      const el: any = document.querySelector(`#${searchInputId} input`);
 
-      onInputKeyUp.value = value
-      isTyping.value = !_.isEmpty(value);
+      if (el) {
+        const {value} = el;
+
+        onInputKeyUp.value = value
+        isTyping.value = !_.isEmpty(value);
+      }
+
     }
   }
 }

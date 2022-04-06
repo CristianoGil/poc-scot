@@ -19,18 +19,10 @@ export interface PersonResponseError {
 }
 
 export interface PersonResponse {
-    id: number;
     nif: number;
-    nome: string;
-    dataNascimento: string;
-    tipoPessoa: string;
-    isCoimasEmAtraso: boolean;
-    representanteLegal: string;
-    coimasEmAtraso: CoimasEmAtraso[];
-    documentos: Documento[];
-    historicoDocumentos: Documento[];
-    moradas: Morada[];
-    historicoMoradas: Morada[];
+    nome?: string;
+    moradas?: Morada[];
+    historicoMoradas?: Morada[];
 }
 
 interface Morada {
