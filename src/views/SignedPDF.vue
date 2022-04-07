@@ -4,6 +4,8 @@ import {pageTitle} from '../state/pageState';
 import {computed, defineProps} from "vue";
 import {test_base64PDF} from "./../helpers/index";
 import {ResponseSignature} from "./../model/signature";
+import {useRouter} from "vue-router";
+const router = useRouter();
 
 pageTitle.value = "Signed PDF";
 
@@ -20,12 +22,16 @@ const _signedPDFData = computed(() => {
   return __data as ResponseSignature
 });
 
+const backToHome = () => {
+  router.push({path: `/`});
+}
 
 </script>
 
 <template>
   <ion-content :fullscreen="true">
     <div id="container" class="app-content">
+      <ion-button shape="round" @click="backToHome">Voltar a casa</ion-button>
       <object :data="_signedPDFData.pdf" style="overflow:hidden;min-height:100%;width:100vw">
       </object>
     </div>
