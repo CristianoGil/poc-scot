@@ -1,6 +1,7 @@
 import {URL_API_SCOT_SIGNATURE} from "./../utils/const";
-import axios, {AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 import {ResponseError, ResponseSignature} from "./../model/signature";
+import axios from "./../axios";
 
 export class Signature {
     protected url_api: string

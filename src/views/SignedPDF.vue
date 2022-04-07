@@ -32,7 +32,7 @@ const backToHome = () => {
   <ion-content :fullscreen="true">
     <div id="container" class="app-content">
       <ion-button shape="round" @click="backToHome">Voltar a casa</ion-button>
-      <object :data="_signedPDFData.pdf" style="overflow:hidden;min-height:100%;width:100vw">
+      <object :data="'data:application/pdf;base64,'+_signedPDFData.pdf" style="overflow:hidden;min-height:100%;width:100vw">
       </object>
     </div>
   </ion-content>

@@ -18,10 +18,11 @@ npm install
 ```
 
 
-Update backoff API links in file `./src/utils/const.ts`
+Update backoff API links and token in file `./src/utils/const.ts`
 ````
 URL_API_SCOT: link for endpoint to get information about NIF to full fill PDF
 URL_API_SCOT_SIGNATURE: Link for endpoint to sign document
+AUTH_TOKEN: Bearer token to authenticate API
 ````
 
 ## Development
