@@ -75,6 +75,7 @@ const generatePDF = async (canvas) => {
 }
 
 const toSign = (base64PDF: ArrayBuffer) => {
+  base64PDF = base64PDF.replace(/^data:application\/[a-z]+;base64,/, "");
   const {getSignedPDF} = signature(base64PDF);
 
   getSignedPDF().then((signedPDF) => {

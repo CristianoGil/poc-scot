@@ -1,6 +1,7 @@
 import {URL_API_SCOT} from "@/utils/const";
 import {PersonRequest, PersonResponse, PersonResponseError} from "@/model/person";
-import axios, {AxiosResponse} from "axios";
+import  {AxiosResponse} from "axios";
+import axios from "./../axios";
 
 export class Person {
     protected url_api: string
