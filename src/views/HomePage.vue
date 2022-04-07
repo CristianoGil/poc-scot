@@ -5,7 +5,7 @@ import {IonContent, IonPage, loadingController, useIonRouter, onIonViewDidLeave}
 import _ from 'underscore'
 
 import {pageTitle} from '../state/pageState'
-import person from "@/composable/person";
+import person from "./../composable/person";
 import {useRouter} from "vue-router";
 
 const router = useRouter();

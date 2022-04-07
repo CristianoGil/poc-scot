@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import {PropType, defineProps, computed, watch, ref} from "vue";
-import {PersonResponse} from "@/model/person";
-import {isGeneratingPDF, pageTitle} from "@/state/pageState";
+import {defineProps, computed, watch} from "vue";
+import {PersonResponse} from "./../model/person";
+import {isGeneratingPDF, pageTitle} from "./../state/pageState";
 import {useRoute, useRouter} from "vue-router";
 import _ from 'underscore';
 import html2canvas from 'html2canvas';
 import {loadingController, alertController, toastController} from "@ionic/vue";
 import {jsPDF} from "jspdf";
-import {blobToBase64} from "@/utils/apex-formatter";
+import {blobToBase64} from "./../utils/apex-formatter";
 
-import signature from '@/composable/Signature';
+import signature from './../composable/Signature';
 
 const router = useRouter();
 const route = useRoute();
@@ -39,7 +39,7 @@ const startSignatureProcess = async (contentId: string) => {
 
 
   setTimeout(() => {
-    html2canvas(document.getElementsByTagName('body')[0]).then(async (canvas) => {
+    html2canvas(document.getElementById(contentId)).then(async (canvas) => {
       await generatePDFLoading.present();
       await generatePDF(canvas);
 
@@ -63,11 +63,10 @@ const generatePDF = async (canvas) => {
     let imgWidth = 210;
     let imgHeight = canvas.height * imgWidth / canvas.width;
 
-
     pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
     toSign(await blobToBase64(pdf.output('blob')))
-    pdf.save(`${(new Date()).toDateString()}.pdf`);
+    // pdf.save(`${(new Date()).toDateString()}.pdf`);
   } catch (e) {
     console.log("generatePDF: ", e);
     await presentErrorAlert(undefined, "Ocorreu um erro ao preparar a assinatura. Tente novamente mais tarde e se o problema persistir reinicie o aplicativo");
@@ -76,13 +75,11 @@ const generatePDF = async (canvas) => {
 }
 
 const toSign = (base64PDF: ArrayBuffer) => {
-
   const {getSignedPDF} = signature(base64PDF);
 
   getSignedPDF().then((signedPDF) => {
     console.log('signedPDF: ', signedPDF);
     openToast("Documento assinado com sucesso");
-
     setTimeout(() => {
       router.push({path: `/signed/${JSON.stringify(signedPDF)}`});
     }, 1000);
@@ -122,7 +119,7 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
     <div :id="'container'+_personData.id" class="app-content">
 
       <!--      START: INFORMACAO PESSOAL-->
-      <ion-card>
+      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'">
         <ion-item>
           <ion-label>Informação pessoal</ion-label>
         </ion-item>
@@ -150,7 +147,7 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
       <!--      END: INFORMACAO PESSOAL-->
 
       <!--      START: MORADA-->
-      <ion-card v-for="(morada ) in _personData.moradas" :key="morada.id">
+      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'" v-for="(morada ) in _personData.moradas" :key="morada.id">
         <ion-item>
           <ion-label>Morada - {{ morada.id }}</ion-label>
         </ion-item>
@@ -205,7 +202,7 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
       </ion-card>
       <!--      END: MORADA-->
 
-      <ion-card>
+      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'">
         <ion-item>
           <ion-label class="ion-align-items-center ion-text-center">Assinatura</ion-label>
         </ion-item>
@@ -233,6 +230,10 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
 <style scoped lang="scss">
 .altura {
   height: 260px !important;
+}
+
+.no-box-shadow{
+  box-shadow: none !important;
 }
 
 </style>

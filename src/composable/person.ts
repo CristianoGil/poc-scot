@@ -1,5 +1,5 @@
-import {Person} from "@/api/Person";
-import {PersonRequest, PersonResponse, PersonResponseError} from "@/model/person";
+import {Person} from "./../api/Person";
+import {PersonRequest, PersonResponse, PersonResponseError} from "./../model/person";
 
 export default function person() {
     const personInstance: Person = new Person();

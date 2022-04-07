@@ -1,6 +1,6 @@
-import {URL_API_SIGNATURE} from "@/utils/const";
+import {URL_API_SCOT_SIGNATURE} from "./../utils/const";
 import axios, {AxiosResponse} from "axios";
-import {ResponseError, ResponseSignature} from "@/model/signature";
+import {ResponseError, ResponseSignature} from "./../model/signature";
 
 export class Signature {
     protected url_api: string
@@ -12,13 +12,13 @@ export class Signature {
 
     constructor(base64PDF: string | ArrayBuffer | null | undefined) {
         this.base64PDF = base64PDF;
-        this.url_api = URL_API_SIGNATURE
+        this.url_api = URL_API_SCOT_SIGNATURE
     }
 
     public sign(posx = this.posx, posy = this.posy, idcord = this.idcord, isreduzida = this.isreduzida): Promise<ResponseSignature | ResponseError> {
         return new Promise((resolve, reject) => {
             axios
-                .get(`${this.url_api}/signpdf?base64=${this.base64PDF}&posx=${posx}&posy=${posy}&idcord=${idcord}&isreduzida=${isreduzida}`)
+                .get(`${this.url_api}?base64=${this.base64PDF}&posx=${posx}&posy=${posy}&idcord=${idcord}&isreduzida=${isreduzida}`)
                 .then((response: AxiosResponse<any>) => {
                     resolve(response.data as unknown as ResponseSignature)
                 })
