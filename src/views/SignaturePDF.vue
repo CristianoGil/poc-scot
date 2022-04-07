@@ -78,7 +78,7 @@ const toSign = (base64PDF: ArrayBuffer) => {
   const {getSignedPDF} = signature(base64PDF);
 
   getSignedPDF().then((signedPDF) => {
-    console.log('signedPDF: ', signedPDF);
+
     openToast("Documento assinado com sucesso");
     setTimeout(() => {
       router.push({path: `/signed/${JSON.stringify(signedPDF)}`});
@@ -86,7 +86,7 @@ const toSign = (base64PDF: ArrayBuffer) => {
 
   }).catch((err) => {
     console.log("getSignedPDF: ", err);
-    presentErrorAlert(undefined, "Ocorreu um erro ao preparar ao assinar. Tente novamente mais tarde e se o problema persistir reinicie o aplicativo");
+    presentErrorAlert(undefined, "Ocorreu um erro ao assinar. Tente novamente mais tarde e se o problema persistir reinicie o aplicativo");
   }).finally(() => {
     isGeneratingPDF.value = false;
     generatePDFLoading.dismiss();
