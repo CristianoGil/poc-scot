@@ -13,6 +13,7 @@ npm install -g @ionic/cli
 
 The first time, you will need to run:
 ```shell
+cd [to_application_root_dir]
 npm install
 ```
 
@@ -24,7 +25,7 @@ URL_API_SCOT_SIGNATURE: Link for endpoint to sign document
 ````
 
 ## Development
-Run the App
+Run the App inside of application root dir
 ```shell
 ionic serve
 ```
