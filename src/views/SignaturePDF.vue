@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {defineProps, computed, watch} from "vue";
+import {defineProps, computed, watch, ref} from "vue";
 import {PersonResponse} from "./../model/person";
 import {ResponseSignature} from "./../model/signature";
 import {isGeneratingPDF, pageTitle, signedPDF, networkConditions} from "./../state/index";
@@ -139,6 +139,10 @@ const saveDataLocally = () => {
   savePersonInfo(data);
 }
 
+const tipoDocumento = ref(JSON.parse(localStorage.TIPO_DOCUMENTO))
+const pais = ref(JSON.parse(localStorage.PAIS))
+const entidade = ref(JSON.parse(localStorage.ENTIDADE))
+const distrito = ref(JSON.parse(localStorage.DISTRITO))
 
 </script>
 
@@ -191,7 +195,7 @@ const saveDataLocally = () => {
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
                   <small>Morada</small><br>
                   <section v-if="networkConditions == 'online'">
-                    <strong v-if="morada.morada" >{{ morada.morada }}</strong>
+                    <strong v-if="morada.morada">{{ morada.morada }}</strong>
                     <strong v-else>N/A</strong>
                   </section>
 
@@ -273,10 +277,7 @@ const saveDataLocally = () => {
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
                   <ion-label>Doc. Identificação</ion-label>
                   <ion-select name="docID" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option value="brown">Brown</ion-select-option>
-                    <ion-select-option value="blonde">Blonde</ion-select-option>
-                    <ion-select-option value="black">Black</ion-select-option>
-                    <ion-select-option value="red">Red</ion-select-option>
+                    <ion-select-option v-for="docTipo in tipoDocumento" :value="docTipo.ID" :key="docTipo.ID">{{ docTipo.DESCRICAO }}</ion-select-option>
                   </ion-select>
                 </div>
               </ion-col>
@@ -292,10 +293,7 @@ const saveDataLocally = () => {
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
                   <ion-label>País de Emissão</ion-label>
                   <ion-select name="paisEmissao" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option value="brown">Brown</ion-select-option>
-                    <ion-select-option value="blonde">Blonde</ion-select-option>
-                    <ion-select-option value="black">Black</ion-select-option>
-                    <ion-select-option value="red">Red</ion-select-option>
+                    <ion-select-option v-for="docTipo in pais" :value="docTipo.ID" :key="docTipo.ID">{{ docTipo.DESCRICAO }}</ion-select-option>
                   </ion-select>
                 </div>
               </ion-col>
@@ -304,10 +302,7 @@ const saveDataLocally = () => {
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
                   <ion-label>Entidade Emissora</ion-label>
                   <ion-select name="entidadeEmissora" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option value="brown">Brown</ion-select-option>
-                    <ion-select-option value="blonde">Blonde</ion-select-option>
-                    <ion-select-option value="black">Black</ion-select-option>
-                    <ion-select-option value="red">Red</ion-select-option>
+                    <ion-select-option v-for="docTipo in entidade" :value="docTipo.ID" :key="docTipo.ID">{{ docTipo.DESCRICAO }}</ion-select-option>
                   </ion-select>
                 </div>
               </ion-col>
@@ -316,10 +311,7 @@ const saveDataLocally = () => {
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
                   <ion-label>Local da Emissão</ion-label>
                   <ion-select name="localEmissao" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option value="brown">Brown</ion-select-option>
-                    <ion-select-option value="blonde">Blonde</ion-select-option>
-                    <ion-select-option value="black">Black</ion-select-option>
-                    <ion-select-option value="red">Red</ion-select-option>
+                    <ion-select-option v-for="docTipo in distrito" :value="docTipo.ID" :key="docTipo.ID">{{ docTipo.DESCRICAO }}</ion-select-option>
                   </ion-select>
                 </div>
               </ion-col>
