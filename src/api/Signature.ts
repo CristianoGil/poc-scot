@@ -19,7 +19,7 @@ export class Signature {
     public sign(posx = this.posx, posy = this.posy, idcord = this.idcord, isreduzida = this.isreduzida): Promise<ResponseSignature | ResponseError> {
         return new Promise((resolve, reject) => {
             axios
-                .get(`${this.url_api}?base64=${this.base64PDF}&posx=${posx}&posy=${posy}&idcord=${idcord}&isreduzida=${isreduzida}`)
+                .get(`${this.url_api}?base64=dffff&posx=${posx}&posy=${posy}&idcord=${idcord}&isreduzida=${isreduzida}`)
                 .then((response: AxiosResponse<any>) => {
                     resolve(response.data as unknown as ResponseSignature)
                 })

@@ -5,6 +5,7 @@ import {computed, defineProps} from "vue";
 import {test_base64PDF} from "./../helpers/index";
 import {ResponseSignature} from "./../model/signature";
 import {useRouter} from "vue-router";
+
 const router = useRouter();
 
 pageTitle.value = "Signed PDF";
@@ -16,11 +17,12 @@ const props = defineProps({
   }
 })
 
-const _signedPDFData = computed(() => {
-  const __data = JSON.parse(props.signedPDF)
-  __data.pdf = __data.pdf === 'mockServer' ? test_base64PDF : __data.pdf;
-  return __data as ResponseSignature
-});
+const base64PDF = computed(() => {
+
+  console.log("Base64:",  props.signedPDF.slice(1,-1));
+
+  return props.signedPDF.slice(1,-1);
+})
 
 const backToHome = () => {
   router.push({path: `/`});
@@ -32,7 +34,7 @@ const backToHome = () => {
   <ion-content :fullscreen="true">
     <div id="container" class="app-content">
       <ion-button shape="round" @click="backToHome">Voltar a casa</ion-button>
-      <object :data="'data:application/pdf;base64,'+_signedPDFData.pdf" style="overflow:hidden;min-height:100%;width:100vw">
+      <object :data="base64PDF" style="overflow:hidden;min-height:100%;width:100vw">
       </object>
     </div>
   </ion-content>
