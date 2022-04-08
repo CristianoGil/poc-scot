@@ -25,24 +25,23 @@ import './theme/variables.css';
 import {networkConditions} from "@/state";
 import "@/database/index";
 
-// if (navigator.onLine) {
-//     networkConditions.value = 'online';
-//     console.log('online');
-// } else {
-//     networkConditions.value = 'offline';
-//     console.log('offline');
-// }
-//
-//
-// window.addEventListener('offline', function (e) {
-//     networkConditions.value = 'offline';
-//     console.log('addEventListener: offline');
-// });
-//
-// window.addEventListener('online', function (e) {
-//     networkConditions.value = 'online';
-//     console.log('addEventListener: online');
-// });
+if (navigator.onLine) {
+    networkConditions.value = 'online';
+    console.log('online');
+} else {
+    networkConditions.value = 'offline';
+    console.log('offline');
+}
+
+window.addEventListener('offline', function (e) {
+    networkConditions.value = 'offline';
+    console.log('addEventListener: offline');
+});
+
+window.addEventListener('online', function (e) {
+    networkConditions.value = 'online';
+    console.log('addEventListener: online');
+});
 
 
 
