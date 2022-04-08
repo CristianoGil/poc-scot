@@ -1,9 +1,21 @@
 <script lang="ts" setup>
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
-import { defineComponent } from 'vue';
+import { defineComponent, watchEffect } from 'vue';
 
-import { pageTitle } from './state/index'
+import { pageTitle, networkConditions } from './state/index'
+import { useOnline } from "@vueuse/core";
 
+const online = useOnline();
+
+watchEffect(()=>{
+  if ( online.value) {
+    networkConditions.value = 'online';
+    console.log('online');
+  } else {
+    networkConditions.value = 'offline';
+    console.log('offline');
+  }
+})
 </script>
 
 <template>

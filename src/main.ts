@@ -44,7 +44,6 @@ window.addEventListener('online', function (e) {
 });
 
 
-
 const app = createApp(App)
     .use(IonicVue)
     .use(router);
