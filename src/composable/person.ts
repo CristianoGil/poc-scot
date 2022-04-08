@@ -1,6 +1,7 @@
 import {Person} from "./../api/Person";
 import {PersonRequest, PersonResponse, PersonResponseError} from "./../model/person";
 import {networkConditions} from "@/state";
+import {AXIOS_TIMEOUT} from "@/utils/const"
 
 export default function person() {
     const personInstance: Person = new Person();
@@ -12,7 +13,7 @@ export default function person() {
                 resolve(data)
             }).catch((error: any) => {
                 reject(error);
-                if(error.message === 'timeout of 3000ms exceeded') {
+                if(error.message === `timeout of ${AXIOS_TIMEOUT}ms exceeded`) {
                     networkConditions.value = 'offline'
                 } else {
                     networkConditions.value = 'online'

@@ -1,5 +1,5 @@
 import axios, {AxiosRequestConfig} from 'axios'
-import {AUTH_TOKEN} from "@/utils/const";
+import {AUTH_TOKEN, AXIOS_TIMEOUT} from "@/utils/const";
 
 
 axios.interceptors.request.use(async (config: AxiosRequestConfig | any) => {
@@ -9,5 +9,5 @@ axios.interceptors.request.use(async (config: AxiosRequestConfig | any) => {
     return config
 })
 
-axios.defaults.timeout = 3000;
+axios.defaults.timeout = AXIOS_TIMEOUT;
 export default axios
