@@ -22,9 +22,8 @@ const routes: Array<RouteRecordRaw> = [
     },
     {
         name: 'Signed',
-        path: '/signed/:signedPDF',
-        component: SignedPDF,
-        props: true
+        path: '/signed',
+        component: SignedPDF
     }
 ]
 

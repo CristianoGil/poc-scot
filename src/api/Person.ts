@@ -13,7 +13,7 @@ export class Person {
     public getByNIF(requestPerson: PersonRequest): Promise<PersonResponse | PersonResponseError> {
         return new Promise((resolve, reject) => {
             axios
-                .post(`${this.url_api}`, {requestPerson})
+                .post(`${this.url_api}`, requestPerson)
                 .then((response: AxiosResponse<any>) => {
                     resolve(response.data as PersonResponse)
                 })

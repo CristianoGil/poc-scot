@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {IonContent} from '@ionic/vue';
-import {pageTitle} from '../state/pageState';
+import {pageTitle, signedPDF} from '../state/index';
 import {computed, defineProps} from "vue";
 import {test_base64PDF} from "./../helpers/index";
 import {ResponseSignature} from "./../model/signature";
@@ -10,18 +10,13 @@ const router = useRouter();
 
 pageTitle.value = "Signed PDF";
 
-const props = defineProps({
-  signedPDF: {
-    type: String,
-    required: true,
-  }
-})
 
 const base64PDF = computed(() => {
-
-  console.log("Base64:",  props.signedPDF.slice(1,-1));
-
-  return props.signedPDF.slice(1,-1);
+  const __data = signedPDF.value;
+  console.log("Base64:",  __data.pdf);
+  console.log("Posx:",  __data.posx);
+  console.log("Posy:",  __data.posy);
+  return __data.pdf;
 })
 
 const backToHome = () => {

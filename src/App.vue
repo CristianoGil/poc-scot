@@ -2,7 +2,7 @@
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { defineComponent } from 'vue';
 
-import { pageTitle } from './state/pageState'
+import { pageTitle } from './state/index'
 
 </script>
 

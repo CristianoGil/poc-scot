@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import {defineProps, computed, watch} from "vue";
 import {PersonResponse} from "./../model/person";
-import {isGeneratingPDF, pageTitle} from "./../state/pageState";
+import {ResponseSignature} from "./../model/signature";
+import {isGeneratingPDF, pageTitle, signedPDF, networkConditions} from "./../state/index";
 import {useRoute, useRouter} from "vue-router";
 import _ from 'underscore';
 import html2canvas from 'html2canvas';
@@ -10,6 +11,7 @@ import {jsPDF} from "jspdf";
 import {blobToBase64} from "./../utils/apex-formatter";
 
 import signature from './../composable/Signature';
+import {savePersonInfo} from "@/database";
 
 const router = useRouter();
 const route = useRoute();
@@ -30,13 +32,18 @@ const _personData = computed(() => {
 
 const startSignatureProcess = async (contentId: string) => {
   isGeneratingPDF.value = true;
+  const waitMessage = networkConditions.value == 'offline' ? 'A guardar e assinar...' : 'A assinar...';
+
   generatePDFLoading = await loadingController
       .create({
-        message: 'A assinar...',
+        message: waitMessage,
         translucent: true,
         backdropDismiss: false
       });
 
+  if (networkConditions.value == 'offline') {
+    saveDataLocally();
+  }
 
   setTimeout(() => {
     html2canvas(document.getElementById(contentId)).then(async (canvas) => {
@@ -59,7 +66,7 @@ const generatePDF = async (canvas) => {
   try {
     const imgData = canvas.toDataURL('image/png');
 
-    const pdf = new jsPDF('p', 'mm',undefined, true);
+    const pdf = new jsPDF('p', 'mm', undefined, true);
     let imgWidth = 210;
     let imgHeight = canvas.height * imgWidth / canvas.width;
 
@@ -78,11 +85,13 @@ const toSign = (base64PDF: ArrayBuffer) => {
   base64PDF = base64PDF.replace(/^data:application\/[a-z]+;base64,/, "");
   const {getSignedPDF} = signature(base64PDF);
 
-  getSignedPDF().then((signedPDF) => {
+  getSignedPDF().then((_signedPDF: ResponseSignature) => {
+
+    signedPDF.value = _signedPDF;
 
     openToast("Documento assinado com sucesso");
     setTimeout(() => {
-      router.push({path: `/signed/${JSON.stringify(signedPDF)}`});
+      router.push({path: `/signed`});
     }, 1000);
 
   }).catch((err) => {
@@ -112,6 +121,25 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
   return toast.present();
 }
 
+const saveDataLocally = () => {
+
+  const data = {
+    nif: _personData.value.nif,
+    nome: document.getElementsByName('PersonName')[0]?.value,
+    moradas: [{
+      id: 1,
+      morada: document.getElementsByName('moradaName')[0]?.value,
+      localidade: document.getElementsByName('moradaLocalidade')[0]?.value,
+      domicilioSede: document.getElementsByName('moradaDomicilioSede')[0]?.value,
+      fracao: document.getElementsByName('moradaFracao')[0]?.value,
+      local: {descricao: document.getElementsByName('MoradaLocalDes')[0]?.value}
+    }]
+  };
+
+  savePersonInfo(data);
+}
+
+
 </script>
 
 <template>
@@ -130,15 +158,18 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
             <ion-row>
               <ion-col size="4">
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <small>NIF</small><br>
+                  NIF<br>
                   <strong>{{ _personData.nif }}</strong>
                 </div>
               </ion-col>
 
               <ion-col size="6">
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <small>Nome</small><br>
-                  <strong>{{ _personData.nome }}</strong>
+                  Nome<br>
+
+                  <strong v-if="networkConditions == 'online'">{{ _personData.nome }}</strong>
+
+                  <ion-input v-else placeholder="Introduz aqui" name="PersonName"></ion-input>
                 </div>
               </ion-col>
             </ion-row>
@@ -159,42 +190,68 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
               <ion-col size="4">
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
                   <small>Morada</small><br>
+                  <section v-if="networkConditions == 'online'">
+                    <strong v-if="morada.morada" >{{ morada.morada }}</strong>
+                    <strong v-else>N/A</strong>
+                  </section>
 
-                  <strong v-if="morada.morada">{{ morada.morada }}</strong>
-                  <strong v-else>N/A</strong>
+                  <section v-else>
+                    <ion-input placeholder="Introduz aqui" name="moradaName"></ion-input>
+                  </section>
+
                 </div>
               </ion-col>
 
               <ion-col size="4">
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <small>Local</small><br>
-
-                  <strong v-if="morada.local?.descricao">{{ morada.local?.descricao }}</strong>
-                  <strong v-else>N/A</strong>
+                  Local<br>
+                  <section v-if="networkConditions == 'online'">
+                    <strong v-if="morada.local?.descricao">{{ morada.local?.descricao }}</strong>
+                    <strong v-else>N/A</strong>
+                  </section>
+                  <section v-else>
+                    <ion-input placeholder="Introduz aqui" name="MoradaLocalDes"></ion-input>
+                  </section>
                 </div>
               </ion-col>
 
               <ion-col size="4">
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <small>Localidade</small><br>
-                  <strong v-if="morada.localidade">{{ morada.localidade }}</strong>
-                  <strong v-else>N/A</strong>
+                  Localidade<br>
+                  <section v-if="networkConditions == 'online'">
+                    <strong v-if="morada.localidade">{{ morada.localidade }}</strong>
+                    <strong v-else>N/A</strong>
+                  </section>
+                  <section v-else>
+                    <ion-input placeholder="Introduz aqui" name="moradaLocalidade"></ion-input>
+                  </section>
                 </div>
               </ion-col>
 
               <ion-col size="4">
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <small>Domicilio Sede</small><br>
-                  <strong v-if="morada.domicilioSede">{{ morada.domicilioSede }}</strong>
-                  <strong v-else>N/A</strong>
+                  Domicilio Sede<br>
+                  <section v-if="networkConditions == 'online'">
+                    <strong v-if="morada.domicilioSede">{{ morada.domicilioSede }}</strong>
+                    <strong v-else>N/A</strong>
+                  </section>
+
+                  <section v-else>
+                    <ion-input placeholder="Introduz aqui" name="moradaDomicilioSede"></ion-input>
+                  </section>
                 </div>
               </ion-col>
 
               <ion-col size="4">
                 <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <small>Fração</small><br>
-                  <strong v-if="morada.fracao">{{ morada.fracao }}</strong>
-                  <strong v-else>N/A</strong>
+                  Fração<br>
+                  <section v-if="networkConditions == 'online'">
+                    <strong v-if="morada.fracao">{{ morada.fracao }}</strong>
+                    <strong v-else>N/A</strong>
+                  </section>
+                  <section v-else>
+                    <ion-input placeholder="Introduz aqui" name="moradaFracao"></ion-input>
+                  </section>
                 </div>
               </ion-col>
             </ion-row>
@@ -202,6 +259,76 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
         </ion-card-content>
       </ion-card>
       <!--      END: MORADA-->
+
+      <!--      START: ID -->
+      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'" v-show="networkConditions == 'offline'">
+        <ion-item>
+          <ion-label>Documento Identificação</ion-label>
+        </ion-item>
+
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="2">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <ion-label>Doc. Identificação</ion-label>
+                  <ion-select name="docID" interface="popover" placeholder="Selecione aqui">
+                    <ion-select-option value="brown">Brown</ion-select-option>
+                    <ion-select-option value="blonde">Blonde</ion-select-option>
+                    <ion-select-option value="black">Black</ion-select-option>
+                    <ion-select-option value="red">Red</ion-select-option>
+                  </ion-select>
+                </div>
+              </ion-col>
+
+              <ion-col size="2">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  Número<br>
+                  <ion-input name="docNumero" placeholder="Introduz aqui"></ion-input>
+                </div>
+              </ion-col>
+
+              <ion-col size="2">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <ion-label>País de Emissão</ion-label>
+                  <ion-select name="paisEmissao" interface="popover" placeholder="Selecione aqui">
+                    <ion-select-option value="brown">Brown</ion-select-option>
+                    <ion-select-option value="blonde">Blonde</ion-select-option>
+                    <ion-select-option value="black">Black</ion-select-option>
+                    <ion-select-option value="red">Red</ion-select-option>
+                  </ion-select>
+                </div>
+              </ion-col>
+
+              <ion-col size="2">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <ion-label>Entidade Emissora</ion-label>
+                  <ion-select name="entidadeEmissora" interface="popover" placeholder="Selecione aqui">
+                    <ion-select-option value="brown">Brown</ion-select-option>
+                    <ion-select-option value="blonde">Blonde</ion-select-option>
+                    <ion-select-option value="black">Black</ion-select-option>
+                    <ion-select-option value="red">Red</ion-select-option>
+                  </ion-select>
+                </div>
+              </ion-col>
+
+              <ion-col size="2">
+                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                  <ion-label>Local da Emissão</ion-label>
+                  <ion-select name="localEmissao" interface="popover" placeholder="Selecione aqui">
+                    <ion-select-option value="brown">Brown</ion-select-option>
+                    <ion-select-option value="blonde">Blonde</ion-select-option>
+                    <ion-select-option value="black">Black</ion-select-option>
+                    <ion-select-option value="red">Red</ion-select-option>
+                  </ion-select>
+                </div>
+              </ion-col>
+
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+      <!--      END: ID-->
 
       <ion-card :class="!isGeneratingPDF || 'no-box-shadow'">
         <ion-item>
@@ -216,7 +343,15 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
             </ion-row>
           </ion-grid>
           <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-            <ion-button v-show="!isGeneratingPDF" @click="startSignatureProcess('container'+_personData.id)">Assinar</ion-button>
+            <ion-button v-show="!isGeneratingPDF" @click="startSignatureProcess('container'+_personData.id)">
+              <section v-if="networkConditions == 'online'">
+                Assinar
+              </section>
+
+              <section v-else>
+                Guardar e Assinar
+              </section>
+            </ion-button>
           </ion-fab>
         </ion-card-content>
       </ion-card>
@@ -233,7 +368,7 @@ const openToast = async (message = "Atualizado com sucesso.", duration = 2000) =
   height: 260px !important;
 }
 
-.no-box-shadow{
+.no-box-shadow {
   box-shadow: none !important;
 }
 

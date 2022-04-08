@@ -1,8 +1,8 @@
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 import App from './App.vue'
 import router from './router';
 
-import { IonicVue } from '@ionic/vue';
+import {IonicVue} from '@ionic/vue';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -22,11 +22,35 @@ import '@ionic/vue/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import {networkConditions} from "@/state";
+import "@/database/index";
+
+// if (navigator.onLine) {
+//     networkConditions.value = 'online';
+//     console.log('online');
+// } else {
+//     networkConditions.value = 'offline';
+//     console.log('offline');
+// }
+//
+//
+// window.addEventListener('offline', function (e) {
+//     networkConditions.value = 'offline';
+//     console.log('addEventListener: offline');
+// });
+//
+// window.addEventListener('online', function (e) {
+//     networkConditions.value = 'online';
+//     console.log('addEventListener: online');
+// });
+
+
 
 const app = createApp(App)
-  .use(IonicVue)
-  .use(router);
-  
+    .use(IonicVue)
+    .use(router);
+
 router.isReady().then(() => {
-  app.mount('#app');
+    app.mount('#app');
 });
+

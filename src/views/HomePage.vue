@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import {defineComponent, ref} from "vue";
-import {IonContent, IonPage, loadingController, useIonRouter, onIonViewDidLeave} from '@ionic/vue';
+import {IonContent, IonPage, loadingController, useIonRouter, onIonViewDidLeave, IonIcon} from '@ionic/vue';
 
-import _ from 'underscore'
+import _ from 'underscore';
 
-import {pageTitle} from '../state/pageState'
+import {pageTitle, networkConditions} from '../state/index';
 import person from "./../composable/person";
 import {useRouter} from "vue-router";
 
@@ -58,6 +58,13 @@ const searchPerson = {
   }
 }
 
+const continueFillForm = () => {
+  router.push({
+    path: `/signature/${JSON.stringify({
+      nif: onInputKeyUp.value, moradas: [{id: 1, morada: null, local: null,domicilioSede: null, fracao: null}]
+    })}`
+  })
+}
 
 </script>
 
@@ -66,7 +73,7 @@ const searchPerson = {
     <div id="container" class="app-content">
       <ion-grid>
         <ion-row>
-          <ion-col size="12">
+          <ion-col size="8" offset="2">
             <!--  START(form): Request INFO TO FILL FULL PDF BY NIF-->
             <ion-searchbar @ionInput="searchPerson.onInput.keyup" :id="searchInputId" :name="searchInputId"
                            type="number"
@@ -74,8 +81,18 @@ const searchPerson = {
             <!--  END(form): Request INFO TO FILL FULL PDF BY NIF-->
           </ion-col>
 
-          <ion-col size="8" offset="2" v-show="isTyping">
-            <ion-button size="small" @click="searchPerson.getInfoByNIF" expand="block" color="secondary">Pesquisar
+          <ion-col size="6" offset="3" v-show="isTyping">
+
+            <ion-text color="danger" v-if="networkConditions == 'offline'">
+              <h6>O sistema está em modo offline por favor continua a preencha os campos manualmente!</h6>
+            </ion-text>
+
+            <ion-button v-if="networkConditions == 'offline'" size="small" @click="continueFillForm" expand="block"
+                        color="light">Continuar
+            </ion-button>
+
+            <ion-button v-if="networkConditions == 'online'" size="small" @click="searchPerson.getInfoByNIF"
+                        expand="block" color="secondary">Pesquisar
             </ion-button>
           </ion-col>
 
