@@ -9,4 +9,5 @@ axios.interceptors.request.use(async (config: AxiosRequestConfig | any) => {
     return config
 })
 
+axios.defaults.timeout = 3000;
 export default axios
