@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { IonApp } from '@ionic/vue';
-import {  watchEffect } from 'vue';
+import { IonApp, IonRouterOutlet } from '@ionic/vue';
+import {  watchEffect, defineComponent } from 'vue';
 
-import { pageTitle, networkConditions } from './state/index'
+import {  networkConditions } from './state/index'
 import { useOnline } from "@vueuse/core";
 import { SplashScreen } from '@capacitor/splash-screen';
 
@@ -18,6 +18,13 @@ watchEffect(()=>{
   }
 })
 
+defineComponent({
+  name: "App",
+  components: {
+    IonApp,
+    IonRouterOutlet
+  }
+})
 
 const splashScreen = async () => {
   // Hide the splash (you should do this on app launch)
@@ -29,16 +36,7 @@ splashScreen();
 
 <template>
   <ion-app>
-      <ion-header :translucent="true" >
-        <ion-toolbar>
-          <ion-title>POC SCot 1 - {{ pageTitle }}</ion-title>
-        </ion-toolbar>
-      </ion-header>
-    <RouterView v-slot="{ Component, route }">
-      <transition :name="route.meta.transition || 'fade-slow'" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </RouterView>
+    <ion-router-outlet />
   </ion-app>
 </template>
 

@@ -1,6 +1,11 @@
 {
-	"appId": "io.ionic.starter",
-	"appName": "poc-scot",
-	"webDir": "dist",
-	"bundledWebRuntime": false
+  "appId": "io.ionic.starter",
+  "appName": "poc-scot",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
 }

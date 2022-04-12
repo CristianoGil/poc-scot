@@ -1,19 +1,29 @@
 <script lang="ts" setup>
-import {IonContent} from '@ionic/vue';
+import {
+  IonContent, IonPage, IonButton, IonHeader,
+  IonTitle,
+  IonToolbar,
+  useIonRouter
+} from '@ionic/vue';
 import {pageTitle, signedPDF} from '../state/index';
-import {computed} from "vue";
-import {useRouter} from "vue-router";
+import {computed, defineComponent} from "vue";
 
-const router = useRouter();
+const router = useIonRouter();
+
+defineComponent({
+  components: {
+    IonContent, IonButton, IonPage, IonHeader, IonTitle, IonToolbar,
+  }
+})
 
 pageTitle.value = "Signed PDF";
 
 
 const base64PDF = computed(() => {
-  const __data = signedPDF.value;
-  console.log("Base64:",  __data.pdf);
-  console.log("Posx:",  __data.posx);
-  console.log("Posy:",  __data.posy);
+  const __data =  signedPDF.value;
+  console.log("Base64:", __data.pdf);
+  console.log("Posx:", __data.posx);
+  console.log("Posy:", __data.posy);
   return __data.pdf;
 })
 
@@ -24,13 +34,20 @@ const backToHome = () => {
 </script>
 
 <template>
-  <ion-content :fullscreen="true">
-    <div id="container" class="app-content">
-      <ion-button shape="round" @click="backToHome">Voltar a casa</ion-button>
-      <object :data="base64PDF" style="overflow:hidden;min-height:100%;width:100vw">
-      </object>
-    </div>
-  </ion-content>
+  <ion-page>
+    <ion-header :translucent="true">
+      <ion-toolbar>
+        <ion-title>POC SCot 1 - {{ pageTitle }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content :fullscreen="true">
+      <div id="container" class="app-content">
+        <ion-button shape="round" @click="backToHome">Voltar a casa</ion-button>
+        <object :data="base64PDF" style="overflow:hidden;min-height:100%;width:100vw">
+        </object>
+      </div>
+    </ion-content>
+  </ion-page>
 </template>
 
 <style scoped lang="scss">

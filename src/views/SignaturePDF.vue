@@ -1,19 +1,57 @@
 <script lang="ts" setup>
-import {defineProps, computed, ref} from "vue";
+import {defineProps, computed, ref, defineComponent} from "vue";
 import {PersonResponse} from "./../model/person";
 import {ResponseSignature} from "./../model/signature";
 import {isGeneratingPDF, pageTitle, signedPDF, networkConditions} from "./../state/index";
-import { useRouter} from "vue-router";
 import _ from 'underscore';
 import html2canvas from 'html2canvas';
-import {loadingController, alertController, toastController} from "@ionic/vue";
+import {
+  loadingController, alertController, toastController, IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonPage,
+  IonGrid, IonCol, IonRow,
+  IonCardContent,
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonInput,
+  IonContent,
+  IonFab,
+  useIonRouter
+} from "@ionic/vue";
+
 import {jsPDF} from "jspdf";
 import {blobToBase64} from './../utils/apex-formatter';
 
 import signature from './../composable/Signature';
 import {savePersonInfo} from './../database';
 
-const router = useRouter();
+defineComponent({
+  components: {
+    IonContent,
+    IonGrid,
+    IonCol,
+    IonRow,
+    IonButton,
+    IonPage,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonCardContent,
+    IonFab
+  }
+})
+
+
+const router = useIonRouter();
 let generatePDFLoading: any;
 
 pageTitle.value = "Signature PDF";
@@ -81,7 +119,9 @@ const generatePDF = async (canvas) => {
 }
 
 const toSign = (base64PDF: ArrayBuffer) => {
+
   base64PDF = base64PDF.replace(/^data:application\/[a-z]+;base64,/, "");
+
   const {getSignedPDF} = signature(base64PDF);
 
   getSignedPDF().then((_signedPDF: ResponseSignature) => {
@@ -147,219 +187,227 @@ const distrito = ref(JSON.parse(localStorage.DISTRITO))
 </script>
 
 <template>
-  <ion-content :fullscreen="true" :key="'ionContent-'+_personData.id">
+  <ion-page>
+    <ion-header :translucent="true">
+      <ion-toolbar>
+        <ion-title>POC SCot 1 - {{ pageTitle }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content :fullscreen="true" :key="'ionContent-'+_personData.id">
 
-    <div :id="'container'+_personData.id" class="app-content">
+      <div :id="'container'+_personData.id" class="app-content">
 
-      <!--      START: INFORMACAO PESSOAL-->
-      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'">
-        <ion-item>
-          <ion-label>Informação pessoal</ion-label>
-        </ion-item>
+        <!--      START: INFORMACAO PESSOAL-->
+        <ion-card :class="!isGeneratingPDF || 'no-box-shadow'">
+          <ion-item>
+            <ion-label>Informação pessoal</ion-label>
+          </ion-item>
 
-        <ion-card-content>
-          <ion-grid>
-            <ion-row>
-              <ion-col size="4">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  NIF<br>
-                  <strong>{{ _personData.nif }}</strong>
-                </div>
-              </ion-col>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col size="4">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    NIF<br>
+                    <strong>{{ _personData.nif }}</strong>
+                  </div>
+                </ion-col>
 
-              <ion-col size="6">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  Nome<br>
+                <ion-col size="6">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    Nome<br>
 
-                  <strong v-if="networkConditions == 'online'">{{ _personData.nome }}</strong>
+                    <strong v-if="networkConditions == 'online'">{{ _personData.nome }}</strong>
 
-                  <ion-input v-else placeholder="Introduz aqui" name="PersonName"></ion-input>
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-card-content>
-      </ion-card>
-      <!--      END: INFORMACAO PESSOAL-->
+                    <ion-input v-else placeholder="Introduz aqui" name="PersonName"></ion-input>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+        <!--      END: INFORMACAO PESSOAL-->
 
-      <!--      START: MORADA-->
-      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'" v-for="(morada ) in _personData.moradas" :key="morada.id">
-        <ion-item>
-          <ion-label>Morada - {{ morada.id }}</ion-label>
-        </ion-item>
+        <!--      START: MORADA-->
+        <ion-card :class="!isGeneratingPDF || 'no-box-shadow'" v-for="(morada ) in _personData.moradas"
+                  :key="morada.id">
+          <ion-item>
+            <ion-label>Morada - {{ morada.id }}</ion-label>
+          </ion-item>
 
-        <ion-card-content v-show="morada">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="4">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <small>Morada</small><br>
-                  <section v-if="networkConditions == 'online'">
-                    <strong v-if="morada.morada">{{ morada.morada }}</strong>
-                    <strong v-else>N/A</strong>
-                  </section>
+          <ion-card-content v-show="morada">
+            <ion-grid>
+              <ion-row>
+                <ion-col size="4">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    <small>Morada</small><br>
+                    <section v-if="networkConditions == 'online'">
+                      <strong v-if="morada.morada">{{ morada.morada }}</strong>
+                      <strong v-else>N/A</strong>
+                    </section>
 
-                  <section v-else>
-                    <ion-input placeholder="Introduz aqui" name="moradaName"></ion-input>
-                  </section>
+                    <section v-else>
+                      <ion-input placeholder="Introduz aqui" name="moradaName"></ion-input>
+                    </section>
 
-                </div>
-              </ion-col>
+                  </div>
+                </ion-col>
 
-              <ion-col size="4">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  Local<br>
-                  <section v-if="networkConditions == 'online'">
-                    <strong v-if="morada.local?.descricao">{{ morada.local?.descricao }}</strong>
-                    <strong v-else>N/A</strong>
-                  </section>
-                  <section v-else>
-                    <ion-input placeholder="Introduz aqui" name="MoradaLocalDes"></ion-input>
-                  </section>
-                </div>
-              </ion-col>
+                <ion-col size="4">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    Local<br>
+                    <section v-if="networkConditions == 'online'">
+                      <strong v-if="morada.local?.descricao">{{ morada.local?.descricao }}</strong>
+                      <strong v-else>N/A</strong>
+                    </section>
+                    <section v-else>
+                      <ion-input placeholder="Introduz aqui" name="MoradaLocalDes"></ion-input>
+                    </section>
+                  </div>
+                </ion-col>
 
-              <ion-col size="4">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  Localidade<br>
-                  <section v-if="networkConditions == 'online'">
-                    <strong v-if="morada.localidade">{{ morada.localidade }}</strong>
-                    <strong v-else>N/A</strong>
-                  </section>
-                  <section v-else>
-                    <ion-input placeholder="Introduz aqui" name="moradaLocalidade"></ion-input>
-                  </section>
-                </div>
-              </ion-col>
+                <ion-col size="4">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    Localidade<br>
+                    <section v-if="networkConditions == 'online'">
+                      <strong v-if="morada.localidade">{{ morada.localidade }}</strong>
+                      <strong v-else>N/A</strong>
+                    </section>
+                    <section v-else>
+                      <ion-input placeholder="Introduz aqui" name="moradaLocalidade"></ion-input>
+                    </section>
+                  </div>
+                </ion-col>
 
-              <ion-col size="4">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  Domicilio Sede<br>
-                  <section v-if="networkConditions == 'online'">
-                    <strong v-if="morada.domicilioSede">{{ morada.domicilioSede }}</strong>
-                    <strong v-else>N/A</strong>
-                  </section>
+                <ion-col size="4">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    Domicilio Sede<br>
+                    <section v-if="networkConditions == 'online'">
+                      <strong v-if="morada.domicilioSede">{{ morada.domicilioSede }}</strong>
+                      <strong v-else>N/A</strong>
+                    </section>
 
-                  <section v-else>
-                    <ion-input placeholder="Introduz aqui" name="moradaDomicilioSede"></ion-input>
-                  </section>
-                </div>
-              </ion-col>
+                    <section v-else>
+                      <ion-input placeholder="Introduz aqui" name="moradaDomicilioSede"></ion-input>
+                    </section>
+                  </div>
+                </ion-col>
 
-              <ion-col size="4">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  Fração<br>
-                  <section v-if="networkConditions == 'online'">
-                    <strong v-if="morada.fracao">{{ morada.fracao }}</strong>
-                    <strong v-else>N/A</strong>
-                  </section>
-                  <section v-else>
-                    <ion-input placeholder="Introduz aqui" name="moradaFracao"></ion-input>
-                  </section>
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-card-content>
-      </ion-card>
-      <!--      END: MORADA-->
+                <ion-col size="4">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    Fração<br>
+                    <section v-if="networkConditions == 'online'">
+                      <strong v-if="morada.fracao">{{ morada.fracao }}</strong>
+                      <strong v-else>N/A</strong>
+                    </section>
+                    <section v-else>
+                      <ion-input placeholder="Introduz aqui" name="moradaFracao"></ion-input>
+                    </section>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+        <!--      END: MORADA-->
 
-      <!--      START: ID -->
-      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'" v-show="networkConditions == 'offline'">
-        <ion-item>
-          <ion-label>Documento Identificação</ion-label>
-        </ion-item>
+        <!--      START: ID -->
+        <ion-card :class="!isGeneratingPDF || 'no-box-shadow'" v-show="networkConditions == 'offline'">
+          <ion-item>
+            <ion-label>Documento Identificação</ion-label>
+          </ion-item>
 
-        <ion-card-content>
-          <ion-grid>
-            <ion-row>
-              <ion-col size="2">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <ion-label>Doc. Identificação</ion-label>
-                  <ion-select name="docID" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option v-for="docTipo in tipoDocumento" :value="docTipo.ID" :key="docTipo.ID">
-                      {{ docTipo.DESCRICAO }}
-                    </ion-select-option>
-                  </ion-select>
-                </div>
-              </ion-col>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col size="2">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    <ion-label>Doc. Identificação</ion-label>
+                    <ion-select name="docID" interface="popover" placeholder="Selecione aqui">
+                      <ion-select-option v-for="docTipo in tipoDocumento" :value="docTipo.ID" :key="docTipo.ID">
+                        {{ docTipo.DESCRICAO }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+                </ion-col>
 
-              <ion-col size="2">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  Número<br>
-                  <ion-input name="docNumero" placeholder="Introduz aqui"></ion-input>
-                </div>
-              </ion-col>
+                <ion-col size="2">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    Número<br>
+                    <ion-input name="docNumero" placeholder="Introduz aqui"></ion-input>
+                  </div>
+                </ion-col>
 
-              <ion-col size="2">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <ion-label>País de Emissão</ion-label>
-                  <ion-select name="paisEmissao" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option v-for="docTipo in pais" :value="docTipo.ID" :key="docTipo.ID">
-                      {{ docTipo.DESCRICAO }}
-                    </ion-select-option>
-                  </ion-select>
-                </div>
-              </ion-col>
+                <ion-col size="2">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    <ion-label>País de Emissão</ion-label>
+                    <ion-select name="paisEmissao" interface="popover" placeholder="Selecione aqui">
+                      <ion-select-option v-for="docTipo in pais" :value="docTipo.ID" :key="docTipo.ID">
+                        {{ docTipo.DESCRICAO }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+                </ion-col>
 
-              <ion-col size="2">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <ion-label>Entidade Emissora</ion-label>
-                  <ion-select name="entidadeEmissora" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option v-for="docTipo in entidade" :value="docTipo.ID" :key="docTipo.ID">
-                      {{ docTipo.DESCRICAO }}
-                    </ion-select-option>
-                  </ion-select>
-                </div>
-              </ion-col>
+                <ion-col size="2">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    <ion-label>Entidade Emissora</ion-label>
+                    <ion-select name="entidadeEmissora" interface="popover" placeholder="Selecione aqui">
+                      <ion-select-option v-for="docTipo in entidade" :value="docTipo.ID" :key="docTipo.ID">
+                        {{ docTipo.DESCRICAO }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+                </ion-col>
 
-              <ion-col size="2">
-                <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
-                  <ion-label>Local da Emissão</ion-label>
-                  <ion-select name="localEmissao" interface="popover" placeholder="Selecione aqui">
-                    <ion-select-option v-for="docTipo in distrito" :value="docTipo.ID" :key="docTipo.ID">
-                      {{ docTipo.DESCRICAO }}
-                    </ion-select-option>
-                  </ion-select>
-                </div>
-              </ion-col>
+                <ion-col size="2">
+                  <div class="sc-ion-label-md-h sc-ion-label-md-s md ion-text-left">
+                    <ion-label>Local da Emissão</ion-label>
+                    <ion-select name="localEmissao" interface="popover" placeholder="Selecione aqui">
+                      <ion-select-option v-for="docTipo in distrito" :value="docTipo.ID" :key="docTipo.ID">
+                        {{ docTipo.DESCRICAO }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+                </ion-col>
 
-            </ion-row>
-          </ion-grid>
-        </ion-card-content>
-      </ion-card>
-      <!--      END: ID-->
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+        <!--      END: ID-->
 
-      <ion-card :class="!isGeneratingPDF || 'no-box-shadow'">
-        <ion-item>
-          <ion-label class="ion-align-items-center ion-text-center">Assinatura</ion-label>
-        </ion-item>
+        <ion-card :class="!isGeneratingPDF || 'no-box-shadow'">
+          <ion-item>
+            <ion-label class="ion-align-items-center ion-text-center">Assinatura</ion-label>
+          </ion-item>
 
-        <ion-card-content class="altura">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="12">
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-          <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-            <ion-button v-show="!isGeneratingPDF" @click="startSignatureProcess('container'+_personData.id)">
-              <section v-if="networkConditions == 'online'">
-                Assinar
-              </section>
+          <ion-card-content class="altura">
+            <ion-grid>
+              <ion-row>
+                <ion-col size="12">
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+              <ion-button v-show="!isGeneratingPDF" @click="startSignatureProcess('container'+_personData.id)">
+                <section v-if="networkConditions == 'online'">
+                  Assinar
+                </section>
 
-              <section v-else>
-                Guardar e Assinar
-              </section>
-            </ion-button>
-          </ion-fab>
-        </ion-card-content>
-      </ion-card>
+                <section v-else>
+                  Guardar e Assinar
+                </section>
+              </ion-button>
+            </ion-fab>
+          </ion-card-content>
+        </ion-card>
 
-    </div>
+      </div>
 
 
-  </ion-content>
+    </ion-content>
+  </ion-page>
 </template>
 
 

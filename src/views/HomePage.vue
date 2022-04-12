@@ -1,15 +1,34 @@
 <script lang="ts" setup>
-import { ref} from "vue";
-import {IonContent, loadingController} from '@ionic/vue';
+import {defineComponent, ref} from "vue";
+import {
+  loadingController,
+  IonGrid,
+  IonCol,
+  IonRow,
+  IonText,
+  IonSearchbar,
+  IonButton,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonPage,
+  IonContent,
+  useIonRouter
+} from '@ionic/vue';
 
 
 import _ from 'underscore';
 
 import {pageTitle, networkConditions} from '../state/index';
 import person from "./../composable/person";
-import {useRouter} from "vue-router";
 
-const router = useRouter();
+defineComponent({
+  components: {
+    IonContent, IonGrid, IonCol, IonRow, IonText, IonSearchbar, IonButton, IonPage, IonHeader, IonTitle, IonToolbar,
+  }
+})
+
+const router = useIonRouter();
 
 pageTitle.value = "Home";
 
@@ -62,7 +81,7 @@ const searchPerson = {
 const continueFillForm = () => {
   router.push({
     path: `/signature/${JSON.stringify({
-      nif: onInputKeyUp.value, moradas: [{id: 1, morada: null, local: null,domicilioSede: null, fracao: null}]
+      nif: onInputKeyUp.value, moradas: [{id: 1, morada: null, local: null, domicilioSede: null, fracao: null}]
     })}`
   })
 }
@@ -70,38 +89,44 @@ const continueFillForm = () => {
 </script>
 
 <template>
-  <ion-content :fullscreen="true">
-    <div id="container" class="app-content">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="8" offset="2">
-            <!--  START(form): Request INFO TO FILL FULL PDF BY NIF-->
-            <ion-searchbar @ionInput="searchPerson.onInput.keyup" :id="searchInputId" :name="searchInputId"
-                           type="number"
-                           inputmode="numeric" placeholder="Informa o NIF"></ion-searchbar>
-            <!--  END(form): Request INFO TO FILL FULL PDF BY NIF-->
-          </ion-col>
+  <ion-page>
+    <ion-header :translucent="true">
+      <ion-toolbar>
+        <ion-title>POC SCot 1 - {{ pageTitle }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content :fullscreen="true">
+      <div id="container" class="app-content">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8" offset="2">
+              <!--  START(form): Request INFO TO FILL FULL PDF BY NIF-->
+              <ion-searchbar @ionInput="searchPerson.onInput.keyup" :id="searchInputId" :name="searchInputId"
+                             type="number"
+                             inputmode="numeric" placeholder="Informa o NIF"></ion-searchbar>
+              <!--  END(form): Request INFO TO FILL FULL PDF BY NIF-->
+            </ion-col>
 
-          <ion-col size="6" offset="3" v-show="isTyping">
+            <ion-col size="6" offset="3" v-show="isTyping">
 
-            <ion-text color="danger" v-if="networkConditions == 'offline'">
-              <h6>O sistema está em modo offline por favor continua a preencha os campos manualmente!</h6>
-            </ion-text>
+              <ion-text color="danger" v-if="networkConditions == 'offline'">
+                <h6>O sistema está em modo offline por favor continua a preencha os campos manualmente!</h6>
+              </ion-text>
 
-            <ion-button v-if="networkConditions == 'offline'" size="small" @click="continueFillForm" expand="block"
-                        color="light">Continuar
-            </ion-button>
+              <ion-button v-if="networkConditions == 'offline'" size="small" @click="continueFillForm" expand="block"
+                          color="light">Continuar
+              </ion-button>
 
-            <ion-button v-if="networkConditions == 'online'" size="small" @click="searchPerson.getInfoByNIF"
-                        expand="block" color="secondary">Pesquisar
-            </ion-button>
-          </ion-col>
+              <ion-button v-if="networkConditions == 'online'" size="small" @click="searchPerson.getInfoByNIF"
+                          expand="block" color="secondary">Pesquisar
+              </ion-button>
+            </ion-col>
 
-        </ion-row>
-      </ion-grid>
-    </div>
-  </ion-content>
-
+          </ion-row>
+        </ion-grid>
+      </div>
+    </ion-content>
+  </ion-page>
 </template>
 
 <style scoped lang="scss">

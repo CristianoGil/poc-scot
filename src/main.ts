@@ -25,6 +25,9 @@ import './theme/variables.css';
 import {networkConditions} from "./state";
 import "./database/index";
 
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
+defineCustomElements(window);
+
 import './registerServiceWorker';
 
 if (navigator.onLine) {
@@ -49,6 +52,10 @@ window.addEventListener('online', function () {
 const app = createApp(App)
     .use(IonicVue)
     .use(router);
+
+app.config.compilerOptions.isCustomElement = (tag) => {
+    return tag.startsWith('ion-')
+}
 
 router.isReady().then(() => {
     app.mount('#app');
