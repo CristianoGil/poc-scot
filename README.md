@@ -30,3 +30,18 @@ Run the App inside of application root dir
 ```shell
 ionic serve
 ```
+
+## Production
+Build for production
+```shell
+ionic capacitor build browser --verbose
+```
+This will create a production-ready build of your app in the project's `./dist` directory.
+
+Run production locally with nodejs static file server:
+```shell
+npm install -g serve
+# -s flag means serve it in Single-Page Application mode
+# which deals with the routing problem below
+serve dist -s
+```
