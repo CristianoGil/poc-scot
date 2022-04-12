@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { IonApp, IonRouterOutlet } from '@ionic/vue';
-import { defineComponent, watchEffect } from 'vue';
+import { IonApp } from '@ionic/vue';
+import {  watchEffect } from 'vue';
 
 import { pageTitle, networkConditions } from './state/index'
 import { useOnline } from "@vueuse/core";
+import { SplashScreen } from '@capacitor/splash-screen';
 
 const online = useOnline();
 
@@ -16,6 +17,14 @@ watchEffect(()=>{
     console.log('offline');
   }
 })
+
+
+const splashScreen = async () => {
+  // Hide the splash (you should do this on app launch)
+  await SplashScreen.hide();
+}
+
+splashScreen();
 </script>
 
 <template>

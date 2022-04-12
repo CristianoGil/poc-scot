@@ -22,8 +22,10 @@ import '@ionic/vue/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import {networkConditions} from "@/state";
-import "@/database/index";
+import {networkConditions} from "./state";
+import "./database/index";
+
+import './registerServiceWorker';
 
 if (navigator.onLine) {
     networkConditions.value = 'online';
@@ -33,12 +35,12 @@ if (navigator.onLine) {
     console.log('offline');
 }
 
-window.addEventListener('offline', function (e) {
+window.addEventListener('offline', function () {
     networkConditions.value = 'offline';
     console.log('addEventListener: offline');
 });
 
-window.addEventListener('online', function (e) {
+window.addEventListener('online', function () {
     networkConditions.value = 'online';
     console.log('addEventListener: online');
 });

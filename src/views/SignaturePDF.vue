@@ -1,20 +1,19 @@
 <script lang="ts" setup>
-import {defineProps, computed, watch, ref} from "vue";
+import {defineProps, computed, ref} from "vue";
 import {PersonResponse} from "./../model/person";
 import {ResponseSignature} from "./../model/signature";
 import {isGeneratingPDF, pageTitle, signedPDF, networkConditions} from "./../state/index";
-import {useRoute, useRouter} from "vue-router";
+import { useRouter} from "vue-router";
 import _ from 'underscore';
 import html2canvas from 'html2canvas';
 import {loadingController, alertController, toastController} from "@ionic/vue";
 import {jsPDF} from "jspdf";
-import {blobToBase64} from "./../utils/apex-formatter";
+import {blobToBase64} from './../utils/apex-formatter';
 
 import signature from './../composable/Signature';
-import {savePersonInfo} from "@/database";
+import {savePersonInfo} from './../database';
 
 const router = useRouter();
-const route = useRoute();
 let generatePDFLoading: any;
 
 pageTitle.value = "Signature PDF";

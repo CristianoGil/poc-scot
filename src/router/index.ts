@@ -7,10 +7,6 @@ import SignedPDF from '../views/SignedPDF.vue';
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
-        redirect: '/home'
-    },
-    {
-        path: '/home',
         name: 'Home',
         component: HomePage
     },

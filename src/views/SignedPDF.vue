@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import {IonContent} from '@ionic/vue';
 import {pageTitle, signedPDF} from '../state/index';
-import {computed, defineProps} from "vue";
-import {test_base64PDF} from "./../helpers/index";
-import {ResponseSignature} from "./../model/signature";
+import {computed} from "vue";
 import {useRouter} from "vue-router";
 
 const router = useRouter();

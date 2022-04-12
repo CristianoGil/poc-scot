@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {defineComponent, ref} from "vue";
-import {IonContent, IonPage, loadingController, useIonRouter, onIonViewDidLeave, IonIcon} from '@ionic/vue';
+import { ref} from "vue";
+import {IonContent, loadingController} from '@ionic/vue';
 
 
 import _ from 'underscore';

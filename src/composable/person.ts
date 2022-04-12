@@ -1,7 +1,7 @@
 import {Person} from "./../api/Person";
 import {PersonRequest, PersonResponse, PersonResponseError} from "./../model/person";
-import {networkConditions} from "@/state";
-import {AXIOS_TIMEOUT} from "@/utils/const"
+import {networkConditions} from "./../state";
+import {AXIOS_TIMEOUT} from "./../utils/const"
 
 export default function person() {
     const personInstance: Person = new Person();
